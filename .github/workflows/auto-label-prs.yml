@@ -1,58 +1,71 @@
 name: Auto Label Pull Requests
 
 on:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened
       - synchronize
 
-  workflow_dispatch:
-
 permissions:
   pull-requests: write
+  issues: write
 
 jobs:
-
-  # ------------------------------------------------------------
-  # Auto-label new pull requests
-  # ------------------------------------------------------------
-  auto-label-new-prs:
-    if: github.event_name == 'pull_request'
+  auto-label-prs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Apply labels to PR
+      - name: Apply PR labels
         uses: actions/github-script@v7
+
         with:
           script: |
             const pr = context.payload.pull_request;
             const branch = pr.head.ref;
 
-            let labels = ['gssoc-26'];
+            let labels = ['gssoc-2026'];
 
-            if (branch.startsWith('fix/')) {
-              labels.push('bug');
+            // Difficulty labels
+            if (branch.startsWith('level1/')) {
+              labels.push('level:beginner');
             }
 
-            if (branch.startsWith('feat/')) {
-              labels.push('enhancement');
+            if (branch.startsWith('level2/')) {
+              labels.push('level:intermediate');
             }
 
-            if (branch.startsWith('docs/')) {
-              labels.push('documentation');
+            if (branch.startsWith('level3/')) {
+              labels.push('level:advanced');
             }
 
-            if (branch.startsWith('style/')) {
-              labels.push('ui');
+            if (branch.startsWith('level4/')) {
+              labels.push('level:critical');
             }
 
-            if (branch.startsWith('test/')) {
-              labels.push('testing');
+            // Type labels
+            if (branch.includes('feat/')) {
+              labels.push('type:feature');
             }
 
-            if (branch.startsWith('refactor/')) {
-              labels.push('refactor');
+            if (branch.includes('fix/')) {
+              labels.push('type:bug');
+            }
+
+            if (branch.includes('docs/')) {
+              labels.push('type:docs');
+            }
+
+            if (branch.includes('refactor/')) {
+              labels.push('type:refactor');
+            }
+
+            if (branch.includes('test/')) {
+              labels.push('type:testing');
+            }
+
+            if (branch.includes('style/')) {
+              labels.push('type:design');
             }
 
             await github.rest.issues.addLabels({
@@ -61,63 +74,3 @@ jobs:
               issue_number: pr.number,
               labels
             });
-
-  # ------------------------------------------------------------
-  # Apply labels to ALL existing PRs
-  # ------------------------------------------------------------
-  label-existing-prs:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Label all existing PRs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pulls = await github.paginate(
-              github.rest.pulls.list,
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: 'all'
-              }
-            );
-
-            for (const pr of pulls) {
-
-              const branch = pr.head.ref;
-              let labels = ['gssoc-26'];
-
-              if (branch.startsWith('fix/')) {
-                labels.push('bug');
-              }
-
-              if (branch.startsWith('feat/')) {
-                labels.push('enhancement');
-              }
-
-              if (branch.startsWith('docs/')) {
-                labels.push('documentation');
-              }
-
-              if (branch.startsWith('style/')) {
-                labels.push('ui');
-              }
-
-              if (branch.startsWith('test/')) {
-                labels.push('testing');
-              }
-
-              if (branch.startsWith('refactor/')) {
-                labels.push('refactor');
-              }
-
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                labels
-              });
-
-              console.log(`Labels added to PR #${pr.number}`);
-            }
