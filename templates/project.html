@@ -127,19 +127,28 @@
     </p>
 
 
-    <!-- Progress -->
-    <div class="roadmap-progress-wrap">
+   <!-- Progress -->
+<div class="roadmap-progress-wrap">
 
-        <div class="roadmap-progress-bar">
-            <div id="roadmap-progress-fill"></div>
-        </div>
-
-        <span id="roadmap-progress-text">
-            0% completed
-        </span>
-
+    <div
+        class="roadmap-progress-bar"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Roadmap completion progress"
+    >
+        <div id="roadmap-progress-fill"></div>
     </div>
 
+    <span
+        id="roadmap-progress-text"
+        aria-live="polite"
+    >
+        0% completed
+    </span>
+
+</div>
 
     <!-- Timeline -->
     <ol class="roadmap-timeline" id="roadmap-list">

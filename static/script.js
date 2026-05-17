@@ -631,49 +631,171 @@ if (isDetailPage) {
 // ROADMAP PROGRESS TRACKER
 // ============================================================
 
-var roadmapCheckboxes = document.querySelectorAll(".roadmap-checkbox");
-var progressFill = document.getElementById("roadmap-progress-fill");
-var progressText = document.getElementById("roadmap-progress-text");
 
-function updateRoadmapProgress() {
-    if (!roadmapCheckboxes.length) return;
+var roadmapCheckboxes = document.querySelectorAll(
+    ".roadmap-checkbox"
+);
+
+var progressFill = document.getElementById(
+    "roadmap-progress-fill"
+);
+
+var progressText = document.getElementById(
+    "roadmap-progress-text"
+);
+
+var progressBar = document.querySelector(
+    ".roadmap-progress-bar"
+);
+
+// Local storage key
+var roadmapStorageKey =
+    "devpath-roadmap-progress";
+
+
+// ------------------------------------------------------------
+// Restore saved roadmap state
+// ------------------------------------------------------------
+
+var savedRoadmapState =
+    localStorage.getItem(
+        roadmapStorageKey
+    );
+
+if(savedRoadmapState){
+
+    try{
+
+        var parsedState =
+            JSON.parse(savedRoadmapState);
+
+        roadmapCheckboxes.forEach(
+            function(cb,index){
+
+                cb.checked =
+                    !!parsedState[index];
+
+            }
+        );
+
+    } catch(error){
+
+        console.error(
+            "Failed to restore roadmap progress",
+            error
+        );
+
+    }
+}
+
+
+// ------------------------------------------------------------
+// Update roadmap progress
+// ------------------------------------------------------------
+
+function updateRoadmapProgress(){
+
+    if(!roadmapCheckboxes.length){
+        return;
+    }
 
     var completed = 0;
 
     roadmapCheckboxes.forEach(function(cb){
 
-        // find parent <li class="roadmap-step">
-        var step = cb.closest(".roadmap-step");
+        var step = cb.closest(
+            ".roadmap-step"
+        );
 
         if(cb.checked){
+
             completed++;
-            if(step) step.classList.add("completed");
+
+            if(step){
+                step.classList.add(
+                    "completed"
+                );
+            }
+
         } else {
-            if(step) step.classList.remove("completed");
+
+            if(step){
+                step.classList.remove(
+                    "completed"
+                );
+            }
+
         }
 
     });
 
     var percent = Math.round(
-        (completed / roadmapCheckboxes.length) * 100
+        (completed / roadmapCheckboxes.length)
+        * 100
     );
 
+    // Update progress bar fill
     if(progressFill){
-        progressFill.style.width = percent + "%";
+
+        progressFill.style.width =
+            percent + "%";
+
     }
 
+    // Update progress text
     if(progressText){
+
         progressText.textContent =
             percent + "% completed";
+
     }
+
+    // Accessibility update
+    if(progressBar){
+
+        progressBar.setAttribute(
+            "aria-valuenow",
+            percent
+        );
+
+    }
+
+    // Save checkbox state
+    var savedState = [];
+
+    roadmapCheckboxes.forEach(function(cb){
+
+        savedState.push(
+            cb.checked
+        );
+
+    });
+
+    localStorage.setItem(
+        roadmapStorageKey,
+        JSON.stringify(savedState)
+    );
+
 }
 
+
+// ------------------------------------------------------------
+// Attach checkbox listeners
+// ------------------------------------------------------------
+
 roadmapCheckboxes.forEach(function(cb){
+
     cb.addEventListener(
         "change",
         updateRoadmapProgress
     );
+
 });
+
+
+// ------------------------------------------------------------
+// Initial progress render
+// ------------------------------------------------------------
 
 updateRoadmapProgress();
   var copyToast    = document.getElementById("copy-toast");
