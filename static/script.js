@@ -245,6 +245,24 @@ if (isIndexPage) {
     }
   });
 
+  // Add/toggle skill on quick-pick chip click
+  quickPickChips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var skill = chip.getAttribute("data-skill");
+      var isAlreadySelected = selectedSkills.some(function (s) {
+        return s.toLowerCase() === skill.toLowerCase();
+      });
+
+      if (isAlreadySelected) {
+        removeSkill(skill);
+      } else {
+        addSkill(skill);
+      }
+      hideSuggestions();
+      skillsTextInput.value = "";
+    });
+  });
+
   // Show suggestions on input
   skillsTextInput.addEventListener("input", function (evt) {
     var typedValue = evt.target.value.trim();
@@ -272,14 +290,6 @@ if (isIndexPage) {
     });
   }
 
-  // Add skill on quick-pick chip click
-  quickPickChips.forEach(function (chip) {
-    chip.addEventListener("click", function () {
-      addSkill(chip.getAttribute("data-skill"));
-      hideSuggestions();
-      skillsTextInput.value = "";
-    });
-  });
 
   document.addEventListener("click", function (evt) {
     if (skillWrap && !skillWrap.contains(evt.target)) {
