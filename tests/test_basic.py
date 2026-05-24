@@ -354,6 +354,16 @@ def test_robots_txt_references_sitemap():
     assert b"Sitemap:" in response.data, "robots.txt must contain a Sitemap: directive"
     assert b"sitemap.xml" in response.data, "robots.txt must reference sitemap.xml"
 
+def test_project_links_have_noopener():
+    client = app.test_client()
+
+    response = client.get("/project/1")
+
+    assert response.status_code == 200
+    assert b'target="_blank"' in response.data
+    assert b'rel="noopener noreferrer"' in response.data
+
+
 
 # ============================================================
 # Run tests directly (no pytest required)
